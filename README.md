@@ -1,6 +1,6 @@
 # cppstrafe
 
-Header-only implementations of Half-Life physics primitives with performance as the sole goal. The second goal is the lack of setup and the ease of use. No special tooling or libraries to install before you can start experimenting with Half-Life physics, beyond the standard C++ toolchain you can install with a single command in most macOS and Linux distribution, or with a download of Visual Studio on Windows. The compute routines are all plain and bare.
+Header-only implementations of Half-Life physics primitives with performance as the primary goal. The second goal is the lack of setup and the ease of use. No special tooling or libraries to install before you can start experimenting with Half-Life physics, beyond the standard C++ toolchain you can install with a single command in most macOS and Linux distribution, or with a download of Visual Studio on Windows. The compute routine APIs are all plain and bare.
 
 Just import one header file:
 
