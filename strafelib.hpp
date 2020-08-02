@@ -1,3 +1,10 @@
+/** @file */
+
+/// Compute the speed after applying ground friction.
+///
+/// This function runs at constant time. The caller is responsible of computing
+/// \p tau_k correctly by considering the values of the entity friction and
+/// the edgefriction.
 double fric_speed(double speed, double E, double tau_k)
 {
     if (speed >= E) {
