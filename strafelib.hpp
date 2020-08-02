@@ -5,6 +5,16 @@
 /// The initial jumping speed, before gravity is applied.
 constexpr const double JUMP_SPEED = 268.3281572999748;
 
+template<int N>
+static inline double dot_product(const double *__restrict a, const double *__restrict b)
+{
+    double res = 0;
+    for (int i = 0; i < N; ++i) {
+        res += a[i] * b[i];
+    }
+    return res;
+}
+
 /// Compute the speed after applying ground friction.
 ///
 /// This function runs at constant time. The caller is responsible of computing
@@ -27,6 +37,31 @@ double fric_speed(double speed, double E, double tau_k)
 
     return 0;
 }
+
+/// Compute the velocity after applying ground friction.
+///
+void fric_vel(double *__restrict vel, double E, double tau_k)
+{
+    const double speedsq = dot_product<2>(vel, vel);
+    if (speedsq >= E * E) {
+        const double tmp = 1 - tau_k;
+        vel[0] *= tmp;
+        vel[1] *= tmp;
+        return;
+    }
+
+    const double tau_E_k = tau_k * E;
+    const double tau_E_k_sq = tau_E_k * tau_E_k;
+    if (speedsq >= tau_E_k_sq && speedsq >= 0.01) {
+        const double tmp = tau_E_k / std::sqrt(speedsq);
+        vel[0] -= vel[0] * tmp;
+        vel[1] -= vel[1] * tmp;
+        return;
+    }
+
+    vel[0] = 0;
+    vel[1] = 0;
+}    
 
 /// Compute the squared speed after applying ground friction.
 ///

@@ -12,6 +12,23 @@ TEST_CASE("friction on speed", "[friction]") {
     }
 }
 
+TEST_CASE("friction on velocity", "[friction]") {
+    SECTION("geometric friction at 1000fps") {
+        double vel[3] = {300, 400, 500};
+        fric_vel(vel, 100, 4. / 1000);
+        REQUIRE(vel[0] == Approx(298.8));
+        REQUIRE(vel[1] == Approx(398.4));
+        REQUIRE(vel[2] == 500);
+    }
+    SECTION("arithmetic friction at 1000fps") {
+        double vel[3] = {30, 40, 50};
+        fric_vel(vel, 100, 4. / 1000);
+        REQUIRE(vel[0] == Approx(29.76));
+        REQUIRE(vel[1] == Approx(39.68));
+        REQUIRE(vel[2] == Approx(50));
+    }
+}
+
 TEST_CASE("fme on speed", "[fme]") {
     SECTION("gamma1 at 1000fps") {
         REQUIRE(fme_speed(320, 0.0175, 30, 3.2) == Approx(320.0719919018));
@@ -38,13 +55,15 @@ TEST_CASE("fme maxaccel on speed", "[fme]") {
 
 TEST_CASE("fme maxaccel on speed C", "[fme]") {
     SECTION("air at 1000fps") {
-        double C = fme_maxaccel_speed_C(1000 * 1000, 30, 3.2);
-        double new_speed = std::sqrt(1000 * 1000 + C);
+        double speedsq = 1000 * 1000;
+        double C = fme_maxaccel_speed_C(speedsq, 30, 3.2);
+        double new_speed = std::sqrt(speedsq + C);
         REQUIRE(new_speed == Approx(1000.0908758707881));
     }
     SECTION("air at 1000fps, A = -10") {
-        double C = fme_maxaccel_speed_C(700 * 700, 30, -3.2);
-        double new_speed = std::sqrt(700 * 700 + C);
+        double speedsq = 700 * 700;
+        double C = fme_maxaccel_speed_C(speedsq, 30, -3.2);
+        double new_speed = std::sqrt(speedsq + C);
         REQUIRE(new_speed == Approx(703.2));
     }
     SECTION("air at 1000fps, zero initial speed") {
