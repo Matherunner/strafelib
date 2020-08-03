@@ -10,3 +10,6 @@ $(OUTPUT): $(TEST_OBJS)
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
+
+clean:
+	rm -f $(TEST_OBJS) $(OUTPUT)

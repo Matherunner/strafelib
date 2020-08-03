@@ -72,3 +72,13 @@ TEST_CASE("fme maxaccel on speed C", "[fme]") {
         REQUIRE(new_speed == Approx(3.2));
     }
 }
+
+TEST_CASE("collision velocity", "[collision]") {
+    SECTION("2D plane") {
+        double v[2] = {1000, 0};
+        double n[2] = {-3. / 5, 4. / 5};
+        collision_vel<2>(v, n, 1);
+        REQUIRE(v[0] == Approx(640));
+        REQUIRE(v[1] == Approx(480));
+    }
+}

@@ -93,7 +93,7 @@ double fric_speedsq(double speedsq, double E, double tau_k)
 /// This function runs at constant time.
 double fme_speed(double speed, double costheta, double L, double ke_tau_M_A)
 {
-    double gamma2 = L - speed * costheta;
+    const double gamma2 = L - speed * costheta;
     if (gamma2 <= 0) {
         return speed;
     }
@@ -104,6 +104,54 @@ double fme_speed(double speed, double costheta, double L, double ke_tau_M_A)
     }
 
     return std::sqrt(speed * (speed + 2 * mu * costheta) + mu * mu);
+}
+
+/// Compute the velocity after applying the FME.
+///
+/// The caller is responsible of ensuring \p costheta and \p sintheta are consistent.
+void fme_vel_theta(double *__restrict vel, double costheta, double sintheta, double L, double ke_tau_M_A)
+{
+    const double speed = std::sqrt(dot_product<2>(vel, vel)); 
+    const double gamma2 = L - speed * costheta;
+    if (gamma2 <= 0) {
+        return;
+    }
+
+    double mu = ke_tau_M_A;
+    if (gamma2 < mu) {
+        mu = gamma2;
+    }
+
+    const double tmp = mu / speed;
+    const double ax = vel[0] * costheta + vel[1] * sintheta;
+    const double ay = vel[1] * costheta - vel[0] * sintheta;
+    vel[0] += tmp * ax;
+    vel[1] += tmp * ay;
+}
+
+/// Compute the \f$\cos\theta\f$ for maximum acceleration.
+///
+double fme_maxaccel_costheta(double speed, double L, double ke_tau_M_A)
+{
+    if (ke_tau_M_A >= 0) {
+        if (L <= ke_tau_M_A) {
+            if (L >= 0) {
+                return 0;
+            }
+            return 1;
+        }
+
+        const double tmp = L - ke_tau_M_A;
+        if (tmp <= speed) {
+            return tmp / speed;
+        }
+        return 1;
+    }
+
+    if (-L < speed) {
+        return -1;
+    }
+    return 1;
 }
 
 /// Compute the speed after applying the FME at maximum acceleration.
@@ -205,3 +253,15 @@ double fme_maxaccel_speed_C(double speedsq, double L, double ke_tau_M_A)
 
 
 // }
+
+/// Compute the velocity after colliding with a hyperplane.
+///
+/// The caller is responsible of ensuring \p n is a unit vector.
+template<int N>
+void collision_vel(double *__restrict v, const double *__restrict n, double b)
+{
+    double tmp = b * dot_product<N>(v, n);
+    for (int i = 0; i < N; ++i) {
+        v[i] -= tmp * n[i];
+    }
+}
