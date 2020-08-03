@@ -1,5 +1,4 @@
 #define CATCH_CONFIG_MAIN
-#define CATCH_CONFIG_ENABLE_BENCHMARKING
 #include "catch.hpp"
 #include "strafelib.hpp"
 
@@ -15,14 +14,14 @@ TEST_CASE("friction on speed", "[friction]") {
 TEST_CASE("friction on velocity", "[friction]") {
     SECTION("geometric friction at 1000fps") {
         double vel[3] = {300, 400, 500};
-        fric_vel(vel, 100, 4. / 1000);
+        fric_vel(vel, 500, 100, 4. / 1000);
         REQUIRE(vel[0] == Approx(298.8));
         REQUIRE(vel[1] == Approx(398.4));
         REQUIRE(vel[2] == 500);
     }
     SECTION("arithmetic friction at 1000fps") {
         double vel[3] = {30, 40, 50};
-        fric_vel(vel, 100, 4. / 1000);
+        fric_vel(vel, 50, 100, 4. / 1000);
         REQUIRE(vel[0] == Approx(29.76));
         REQUIRE(vel[1] == Approx(39.68));
         REQUIRE(vel[2] == Approx(50));

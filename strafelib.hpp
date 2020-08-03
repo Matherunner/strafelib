@@ -5,8 +5,10 @@
 /// The initial jumping speed, before gravity is applied.
 constexpr const double JUMP_SPEED = 268.3281572999748;
 
+/// Compute the dot product of two vectors.
+///
 template<int N>
-static inline double dot_product(const double *__restrict a, const double *__restrict b)
+inline double dot_product(const double *__restrict a, const double *__restrict b)
 {
     double res = 0;
     for (int i = 0; i < N; ++i) {
@@ -40,10 +42,14 @@ double fric_speed(double speed, double E, double tau_k)
 
 /// Compute the velocity after applying ground friction.
 ///
-void fric_vel(double *__restrict vel, double E, double tau_k)
+/// \p vel must have at least two elements.
+///
+/// The caller is responsible of ensuring \p speed matches the 2D norm
+/// of \p vel. By giving you the responsibility of computing the speed,
+/// this function avoids computing any square roots.
+void fric_vel(double *__restrict vel, double speed, double E, double tau_k)
 {
-    const double speedsq = dot_product<2>(vel, vel);
-    if (speedsq >= E * E) {
+    if (speed >= E) {
         const double tmp = 1 - tau_k;
         vel[0] *= tmp;
         vel[1] *= tmp;
@@ -51,9 +57,8 @@ void fric_vel(double *__restrict vel, double E, double tau_k)
     }
 
     const double tau_E_k = tau_k * E;
-    const double tau_E_k_sq = tau_E_k * tau_E_k;
-    if (speedsq >= tau_E_k_sq && speedsq >= 0.01) {
-        const double tmp = tau_E_k / std::sqrt(speedsq);
+    if (speed >= tau_E_k && speed >= 0.1) {
+        const double tmp = tau_E_k / speed;
         vel[0] -= vel[0] * tmp;
         vel[1] -= vel[1] * tmp;
         return;
@@ -109,9 +114,30 @@ double fme_speed(double speed, double costheta, double L, double ke_tau_M_A)
 /// Compute the velocity after applying the FME.
 ///
 /// The caller is responsible of ensuring \p costheta and \p sintheta are consistent.
-void fme_vel_theta(double *__restrict vel, double costheta, double sintheta, double L, double ke_tau_M_A)
+/// \p speed must also match the 2D magnitude of \p vel. \p vel must have at least two elements.
+///
+/// The \f$\cos\theta\f$ is often obtained via a very efficient function dedicated to computing
+/// it, such as fme_maxaccel_costheta(). Given a \f$\cos\theta\f$, the caller may compute
+/// the corresponding \f$\sin\theta\f$ with
+///
+/// \f[
+/// \sin\theta = \pm\sqrt{1 - \cos^2\theta}
+/// \f]
+///
+/// The sign of the square root determines the direction of strafing, with positive
+/// indicating *clockwise* rotation and negative indicating *anticlockwise* rotation.
+///
+/// If you are given an arbitrary \f$\theta\f$, you can compute both \f$\cos\theta\f$
+/// and \f$\sin\theta\f$ simultaneously using the \p sincos() function available on
+/// some libraries.
+///
+/// The apparent redundancy of providing both \p vel and \p speed is to improve the
+/// efficiency. Under most situations, the user of this function needs to compute a
+/// square root to obtain the speed (the norm of velocity). This speed is needed by
+/// a function that computes \f$\cos\theta\f$ and this function. To avoid computing
+/// the square root twice, we leave the responsibility to the caller.
+void fme_vel_theta(double *__restrict vel, double speed, double costheta, double sintheta, double L, double ke_tau_M_A)
 {
-    const double speed = std::sqrt(dot_product<2>(vel, vel)); 
     const double gamma2 = L - speed * costheta;
     if (gamma2 <= 0) {
         return;
@@ -131,6 +157,10 @@ void fme_vel_theta(double *__restrict vel, double costheta, double sintheta, dou
 
 /// Compute the \f$\cos\theta\f$ for maximum acceleration.
 ///
+/// This function is extremely fast.
+///
+/// There is no point accepting a squared speed, because the very common
+/// zeta strafing case requires computing a square root anyway.
 double fme_maxaccel_costheta(double speed, double L, double ke_tau_M_A)
 {
     if (ke_tau_M_A >= 0) {
