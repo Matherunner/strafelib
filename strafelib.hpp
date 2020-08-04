@@ -116,21 +116,6 @@ double fme_speed(double speed, double costheta, double L, double ke_tau_M_A)
 /// The caller is responsible of ensuring \p costheta and \p sintheta are consistent.
 /// \p speed must also match the 2D magnitude of \p vel. \p vel must have at least two elements.
 ///
-/// The \f$\cos\theta\f$ is often obtained via a very efficient function dedicated to computing
-/// it, such as fme_maxaccel_costheta(). Given a \f$\cos\theta\f$, the caller may compute
-/// the corresponding \f$\sin\theta\f$ with
-///
-/// \f[
-/// \sin\theta = \pm\sqrt{1 - \cos^2\theta}
-/// \f]
-///
-/// The sign of the square root determines the direction of strafing, with positive
-/// indicating *clockwise* rotation and negative indicating *anticlockwise* rotation.
-///
-/// If you are given an arbitrary \f$\theta\f$, you can compute both \f$\cos\theta\f$
-/// and \f$\sin\theta\f$ simultaneously using the \p sincos() function available on
-/// some libraries.
-///
 /// The apparent redundancy of providing both \p vel and \p speed is to improve the
 /// efficiency. Under most situations, the user of this function needs to compute a
 /// square root to obtain the speed (the norm of velocity). This speed is needed by
@@ -157,31 +142,42 @@ void fme_vel_theta(double *__restrict vel, double speed, double costheta, double
 
 /// Compute the \f$\cos\theta\f$ for maximum acceleration.
 ///
-/// This function is extremely fast.
-///
 /// There is no point accepting a squared speed, because the very common
 /// zeta strafing case requires computing a square root anyway.
-double fme_maxaccel_costheta(double speed, double L, double ke_tau_M_A)
+void fme_maxaccel_cossin_theta(double speed, double L, double ke_tau_M_A, double *__restrict costheta, double *__restrict sintheta)
 {
     if (ke_tau_M_A >= 0) {
         if (L <= ke_tau_M_A) {
             if (L >= 0) {
-                return 0;
+                *costheta = 0;
+                *sintheta = 1;
+                return;
             }
-            return 1;
+            *costheta = 1;
+            *sintheta = 0;
+            return;
         }
 
         const double tmp = L - ke_tau_M_A;
         if (tmp <= speed) {
-            return tmp / speed;
+            const double ct = tmp / speed;
+            *costheta = ct;
+            *sintheta = std::sqrt(1 - ct * ct);
+            return;
         }
-        return 1;
+        *costheta = 1;
+        *sintheta = 0;
+        return;
     }
 
     if (-L < speed) {
-        return -1;
+        *costheta = -1;
+        *sintheta = 0;
+        return;
     }
-    return 1;
+    *costheta = 1;
+    *sintheta = 0;
+    return;
 }
 
 /// Compute the speed after applying the FME at maximum acceleration.
