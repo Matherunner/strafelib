@@ -255,30 +255,34 @@ double fme_maxaccel_speed_C(double speedsq, double L, double ke_tau_M_A)
     return 0;
 }
 
-// /// Compute the speed after applying the FME at minimum acceleration.
-// ///
-// double fme_minaccel_speed(double speed, double L, double ke_tau_M_A)
-// {
-//     if (ke_tau_M_A >= 0) {
-//         if (L >= 0) {
-//             if (L >= ke_tau_M_A) {
-//                 return speed - ke_tau_M_A;
-//             }
+/// Compute the speed after applying the FME at minimum acceleration.
+///
+double fme_minaccel_speed(double speed, double L, double ke_tau_M_A)
+{
+    if (ke_tau_M_A >= 0) {
+        if (L >= 0) {
+            if (L >= ke_tau_M_A) {
+                return std::fabs(speed - ke_tau_M_A);
+            }
 
-//             const double tmp = L - ke_tau_M_A;
-//             if (L <= speed || -tmp <= speed) {
-//                 return speed - ke_tau_M_A;
-//             }
-//             return L;
-//         }
+            const double tmp = L - ke_tau_M_A;
+            if (L <= speed || -tmp <= speed) {
+                return std::fabs(speed - ke_tau_M_A);
+            }
+            return L;
+        }
 
-//         if (-L < speed) {
-//             // TODO:
-//         }
-//     }
+        if (-L < speed) {
+            if (ke_tau_M_A - L <= speed) {
+                return std::fabs(speed - ke_tau_M_A);
+            }
+            return L; 
+        }
+        return speed;
+    }
 
-
-// }
+    return speed;
+}
 
 /// Compute the velocity after colliding with a hyperplane.
 ///
@@ -286,7 +290,7 @@ double fme_maxaccel_speed_C(double speedsq, double L, double ke_tau_M_A)
 template<int N>
 void collision_vel(double *__restrict v, const double *__restrict n, double b)
 {
-    double tmp = b * dot_product<N>(v, n);
+    const double tmp = b * dot_product<N>(v, n);
     for (int i = 0; i < N; ++i) {
         v[i] -= tmp * n[i];
     }

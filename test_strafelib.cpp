@@ -58,6 +58,21 @@ TEST_CASE("fme maxaccel on speed", "[fme]") {
     }
 }
 
+TEST_CASE("fme minaccel on speed", "[fme]") {
+    SECTION("air at 1000fps") {
+        REQUIRE(fme_minaccel_speed(2000, 30, 3.2) == 1996.8);
+    }
+    SECTION("air at 100fps") {
+        REQUIRE(fme_minaccel_speed(1200, 30, 32) == 1168);
+    }
+    SECTION("air at 1000fps, speed = 1") {
+        REQUIRE(fme_minaccel_speed(1, 30, 3.2) == 2.2);
+    }
+    SECTION("air at 100fps, speed = 2") {
+        REQUIRE(fme_minaccel_speed(2, 30, 32) == 30);
+    }
+}
+
 TEST_CASE("fme on velocity", "[fme]") {
     SECTION("120 degrees, air at 1000fps") {
         double vel[2] = {800, 500};
