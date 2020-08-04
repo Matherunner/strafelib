@@ -32,6 +32,12 @@ TEST_CASE("fme on speed", "[fme]") {
     SECTION("gamma1 at 1000fps") {
         REQUIRE(fme_speed(320, 0.0175, 30, 3.2) == Approx(320.0719919018));
     }
+    SECTION("gamma2 at 100fps") {
+        REQUIRE(fme_speed(100, 0, 30, 32) == Approx(104.4030650891055));
+    }
+    SECTION("mu = 0 at 100fps") {
+        REQUIRE(fme_speed(1000, 1, 320, 32) == 1000);
+    }
 }
 
 TEST_CASE("fme maxaccel on speed", "[fme]") {
@@ -49,6 +55,38 @@ TEST_CASE("fme maxaccel on speed", "[fme]") {
     }
     SECTION("ground at 250fps") {
         REQUIRE(fme_maxaccel_speed(400, 320, 12.8) == Approx(409.91238088157326));
+    }
+}
+
+TEST_CASE("fme on velocity", "[fme]") {
+    SECTION("120 degrees, air at 1000fps") {
+        double vel[2] = {800, 500};
+        double speed = std::sqrt(dot_product<2>(vel, vel));
+        double theta = 120. * M_PI / 180;
+        fme_vel_theta(vel, speed, std::cos(theta), -std::sin(theta), 30, 0.001 * 320 * 10);
+        REQUIRE(vel[0] == Approx(797.1744266));
+        REQUIRE(vel[1] == Approx(501.5020435));
+    }
+    SECTION("90 degrees, air at 100fps") {
+        double vel[2] = {0, -300};
+        double speed = std::sqrt(dot_product<2>(vel, vel));
+        fme_vel_theta(vel, speed, 0, 1, 30, 0.01 * 320 * 10);
+        REQUIRE(vel[0] == Approx(-30));
+        REQUIRE(vel[1] == Approx(-300));
+    }
+    SECTION("0 degrees, air at 1000fps") {
+        double vel[2] = {-500, 500};
+        double speed = std::sqrt(dot_product<2>(vel, vel));
+        fme_vel_theta(vel, speed, 1, 0, 30, 0.001 * 320 * 10);
+        REQUIRE(vel[0] == Approx(-500));
+        REQUIRE(vel[1] == Approx(500));
+    }
+    SECTION("0 degrees, ground at 250fps") {
+        double vel[2] = {-100, 0};
+        double speed = std::sqrt(dot_product<2>(vel, vel));
+        fme_vel_theta(vel, speed, 1, 0, 320, 0.004 * 320 * 10);
+        REQUIRE(vel[0] == Approx(-112.8));
+        REQUIRE(vel[1] == 0);
     }
 }
 
