@@ -295,3 +295,19 @@ void collision_vel(double *__restrict v, const double *__restrict n, double b)
         v[i] -= tmp * n[i];
     }
 }
+
+/// Compute the hunting velocity of a snark.
+///
+/// \p dir must be a unit vector.
+template<int N>
+void snark_hunt_vel(double *__restrict v, const double *__restrict dir)
+{
+    const double speed = std::sqrt(dot_product<N>(v, v));
+    double tmp = 1.2;
+    if (speed > 95. / 3) {
+        tmp = 50 / (speed + 10);
+    }
+    for (int i = 0; i < N; ++i) {
+        v[i] = tmp * v[i] + 300 * dir[i];
+    }
+}

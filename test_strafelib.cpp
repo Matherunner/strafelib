@@ -134,3 +134,13 @@ TEST_CASE("collision velocity", "[collision]") {
         REQUIRE(v[1] == Approx(480));
     }
 }
+
+TEST_CASE("snark_hunt_vel", "[snark]") {
+    SECTION("2D vertical") {
+        double v[2] = {0, -115};
+        double dir[2] = {0, 1};
+        snark_hunt_vel<2>(v, dir);
+        REQUIRE(v[0] == 0);
+        REQUIRE(v[1] == Approx(254));
+    }
+}
