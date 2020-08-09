@@ -144,3 +144,21 @@ TEST_CASE("snark_hunt_vel", "[snark]") {
         REQUIRE(v[1] == Approx(254));
     }
 }
+
+TEST_CASE("tau_g_to_p", "[game]") {
+    SECTION("72 fps") {
+        REQUIRE(tau_g_to_p(1. / 72) == Approx(0.013));
+    }
+    SECTION("2000 fps") {
+        REQUIRE(tau_g_to_p(1. / 2000) == 0);
+    }
+    SECTION("1000 fps") {
+        REQUIRE(tau_g_to_p(1. / 1000) == Approx(0.001));
+    }
+    SECTION("100 fps") {
+        REQUIRE(tau_g_to_p(1. / 100) == Approx(0.01));
+    }
+    SECTION("501 fps") {
+        REQUIRE(tau_g_to_p(1. / 501) == Approx(0.001));
+    }
+}

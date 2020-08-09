@@ -311,3 +311,10 @@ void snark_hunt_vel(double *__restrict v, const double *__restrict dir)
         v[i] = tmp * v[i] + 300 * dir[i];
     }
 }
+
+/// Compute the player frame time given the game frame time.
+///
+inline double tau_g_to_p(double tau_g)
+{
+    return 0.001 * std::floor(1000 * tau_g);
+}
