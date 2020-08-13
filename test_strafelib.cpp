@@ -1,4 +1,5 @@
 #define CATCH_CONFIG_MAIN
+#define CATCH_CONFIG_ENABLE_BENCHMARKING
 #include "catch.hpp"
 #include "strafelib.hpp"
 
@@ -103,6 +104,21 @@ TEST_CASE("fme on velocity", "[fme]") {
         REQUIRE(vel[0] == Approx(-112.8));
         REQUIRE(vel[1] == 0);
     }
+}
+
+TEST_CASE("fme_vel_theta benchmark") {
+    const double theta = 92 * M_PI / 180;
+    const double costheta = std::cos(theta);
+    const double sintheta = std::sin(theta);
+
+    BENCHMARK("2000 frames") {
+        double v[2] = {80, 50};
+        for (int i = 0; i < 2000; ++i) {
+            double speed = std::sqrt(dot_product<2>(v, v));
+            fme_vel_theta(v, speed, costheta, sintheta, 30, 0.001 * 320 * 10);
+        }
+        return v[0] + v[1];
+    };
 }
 
 TEST_CASE("fme maxaccel on speed C", "[fme]") {
