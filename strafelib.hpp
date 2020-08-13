@@ -128,11 +128,7 @@ void fme_vel_theta(double *__restrict vel, double speed, double costheta, double
         return;
     }
 
-    double mu = ke_tau_M_A;
-    if (gamma2 < mu) {
-        mu = gamma2;
-    }
-
+    const double mu = std::min(ke_tau_M_A, gamma2);
     const double tmp = mu / speed;
     const double ax = vel[0] * costheta + vel[1] * sintheta;
     const double ay = vel[1] * costheta - vel[0] * sintheta;
