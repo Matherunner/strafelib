@@ -120,7 +120,7 @@ TEST_CASE("fme_vel_theta benchmark") {
         return v[0] + v[1];
     };
 
-    BENCHMARK("2000 frames precomputed speeds") {
+    BENCHMARK("2000 frames precomputed speeds theta = 90deg") {
         double v[2] = {80, 50};
         double speedsq = dot_product<2>(v, v);
         double speeds[2000];
@@ -130,6 +130,25 @@ TEST_CASE("fme_vel_theta benchmark") {
         }
         for (int i = 0; i < 2000; ++i) {
             fme_vel_theta(v, speeds[i], 0, 1, 30, 0.001 * 320 * 100);
+        }
+        return v[0] + v[1];
+    };
+
+    BENCHMARK("2000 frames precomputed speeds theta = zeta") {
+        double v[2] = {80, 50};
+        double speedsq = dot_product<2>(v, v);
+        double speeds[2000];
+        double costheta[2000];
+        double sintheta[2000];
+        double C = fme_maxaccel_speed_C(speedsq, 30, 3.2);
+        for (int i = 0; i < 2000; ++i) {
+            speeds[i] = std::sqrt(speedsq + i * C);
+        }
+        for (int i = 0; i < 2000; ++i) {
+            fme_maxaccel_cossin_theta(speeds[i], 30, 3.2, costheta + i, sintheta + i);
+        }
+        for (int i = 0; i < 2000; ++i) {
+            fme_vel_theta(v, speeds[i], costheta[i], sintheta[i], 30, 3.2);
         }
         return v[0] + v[1];
     };
