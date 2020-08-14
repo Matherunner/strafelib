@@ -115,7 +115,21 @@ TEST_CASE("fme_vel_theta benchmark") {
         double v[2] = {80, 50};
         for (int i = 0; i < 2000; ++i) {
             double speed = std::sqrt(dot_product<2>(v, v));
-            fme_vel_theta(v, speed, costheta, sintheta, 30, 0.001 * 320 * 10);
+            fme_vel_theta(v, speed, costheta, sintheta, 30, 0.001 * 320 * 100);
+        }
+        return v[0] + v[1];
+    };
+
+    BENCHMARK("2000 frames precomputed speeds") {
+        double v[2] = {80, 50};
+        double speedsq = dot_product<2>(v, v);
+        double speeds[2000];
+        double C = fme_maxaccel_speed_C(speedsq, 30, 32);
+        for (int i = 0; i < 2000; ++i) {
+            speeds[i] = std::sqrt(speedsq + i * C);
+        }
+        for (int i = 0; i < 2000; ++i) {
+            fme_vel_theta(v, speeds[i], 0, 1, 30, 0.001 * 320 * 100);
         }
         return v[0] + v[1];
     };
