@@ -27,6 +27,6 @@ deploy:
   provider: pages
   skip_cleanup: true
   github_token: $GH_REPO_TOKEN
-  local_dir: builtdocs
+  local_dir: builtdocs/html
   on:
     branch: master
