@@ -8,9 +8,25 @@ compiler:
 
 os: linux
 
+addons:
+  apt:
+    packages:
+      - doxygen
+
 notifications:
   email: false
 
 script:
   - make test
   - ./test_strafelib
+
+after_success:
+  - doxygen Doxyfile
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GH_REPO_TOKEN
+  local_dir: builtdocs
+  on:
+    branch: master
