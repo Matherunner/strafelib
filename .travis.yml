@@ -1,0 +1,16 @@
+language: cpp
+
+dist: bionic
+
+compiler:
+  - gcc
+  - clang
+
+os: linux
+
+notifications:
+  email: false
+
+script:
+  - make test
+  - ./test_strafelib
