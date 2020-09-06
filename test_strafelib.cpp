@@ -211,3 +211,17 @@ TEST_CASE("tau_g_to_p", "[game]") {
         REQUIRE(tau_g_to_p(1. / 501) == Approx(0.001));
     }
 }
+
+TEST_CASE("water_vel", "[water]") {
+    SECTION("1000 fps") {
+        double v[3] = {100, 0, 0};
+        double a[3] = {1, 0, 0};
+        for (int i = 0; i < 1; ++i) {
+            double speed = sqrt(dot_product<3>(v, v));
+            water_vel(v, speed, a, 1 - 0.001 * 4, 320, 0.001 * 320 * 10);
+        }
+        REQUIRE(v[0] == 102.8);
+        REQUIRE(v[1] == 0);
+        REQUIRE(v[2] == 0);
+    }
+}

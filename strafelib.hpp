@@ -314,3 +314,20 @@ inline double tau_g_to_p(double tau_g)
 {
     return 0.001 * std::floor(1000 * tau_g);
 }
+
+/// Compute the player velocity after one frame of water movement.
+///
+/// All vectors are in 3D.
+void water_vel(double *__restrict v, double speed, const double *__restrict a, double geomfric, double M, double ke_tau_M_A)
+{
+    const double m = 0.8 * M;
+    const double gamma2 = m - geomfric * speed;
+    if (gamma2 <= 0 || m < 0.1) {
+        return;
+    }
+
+    const double mu = std::min(ke_tau_M_A, gamma2);
+    for (int i = 0; i < 3; ++i) {
+        v[i] = geomfric * v[i] + mu * a[i];
+    }
+}
