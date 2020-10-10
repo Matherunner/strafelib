@@ -326,7 +326,7 @@ void water_vel(double *__restrict v, double speed, const double *__restrict a, d
         return;
     }
 
-    const double mu = std::min(ke_tau_M_A, gamma2);
+    const double mu = std::min(0.8 * ke_tau_M_A, gamma2);
     for (int i = 0; i < 3; ++i) {
         v[i] = geomfric * v[i] + mu * a[i];
     }
